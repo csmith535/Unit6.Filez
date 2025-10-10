@@ -6,6 +6,18 @@ export async function getFiles() {
     return files;
 };
 
-export async function getFolders() {};
+export async function getFolders() {
+    const sql = `SELECT * FROM folders`;
+    const { rows: folders } = await db.query(sql);
+    return folders;
+};
 
-export async function getFolderById({ id }) {};
+export async function getFolderById({ id }) {
+    const sql = `
+    SELECT * FROM folders
+    WHERE id = $1
+  `;
+
+  const { rows: folders } = await db.query(sql, [id]);
+  return folders[0];
+};

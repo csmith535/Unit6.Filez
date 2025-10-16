@@ -22,12 +22,29 @@ export async function getFolders() {
   return folders;
 }
 
-export async function getFolderById({ id }) {
+export async function getFolderByIdWithFiles({ id }) {
   const sql = `
-    SELECT * FROM folders
+    SELECT *,
+           (
+            SELECT json_agg(files) 
+            FROM files 
+            WHERE files.folder_id = folders.id) 
+            AS files
+    FROM folders
     WHERE id = $1
   `;
 
   const { rows: folders } = await db.query(sql, [id]);
   return folders[0];
+}
+
+export async function createFile({ name, size, id }) {
+  const sql = `
+    INSERT INTO files(name, size, folder_id)
+    VALUES($1, $2, $3)
+    RETURNING *
+    `;
+
+  const { rows: file } = await db.query(sql, [name, size, id]);
+  return file[0];
 }
